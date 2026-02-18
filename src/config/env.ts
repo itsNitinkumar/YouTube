@@ -10,4 +10,7 @@ export const config = {
     PORT :  Number(process.env.PORT),
     MONGO_URI: process.env.MONGO_URI as string,
     NODE_ENV: process.env.NODE_ENV as "development" | "production",
+    JWT_SECRET: process.env.JWT_SECRET as string,
+    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET as string,
+    REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
 }
