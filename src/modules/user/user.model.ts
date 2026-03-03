@@ -9,9 +9,11 @@ export interface IUser extends Document {
   password: string
   role: "viewer" | "creator" | "admin"
   avatar?: string
+  avatarPublicId?: string
   planId?: string
   isVerified: boolean
   isBlocked: boolean
+  isDeleted: boolean
   refreshToken?: string
   comparePassword(password: string): Promise<boolean>
   generateAccessToken(): string
@@ -38,6 +40,7 @@ const userSchema = new Schema<IUser>(
     },
 
     avatar: { type: String },
+    avatarPublicId: { type: String },
 
     planId: { type: String },
 
@@ -45,13 +48,16 @@ const userSchema = new Schema<IUser>(
 
     isBlocked: { type: Boolean, default: false },
 
+    isDeleted: { type: Boolean, default: false },
+
     refreshToken: { type: String },
   },
+  
   { timestamps: true }
 )
 
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) return 
 
   this.password = await bcrypt.hash(this.password, 10)

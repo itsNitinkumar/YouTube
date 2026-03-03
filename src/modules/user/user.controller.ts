@@ -7,6 +7,8 @@ import { registerUser, loginUser } from "./user.service"
 import { registerSchema, loginSchema } from "./user.validation"
 import {config} from "../../config/env"
 import jwt from "jsonwebtoken"
+import { uploadOnCloudinary } from "../../utils/cloudinary"
+import * as userService from "./user.service"
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const parsed = registerSchema.parse(req.body)
 
@@ -78,4 +80,56 @@ export const refreshToken = asyncHandler(async (req: Request, res: Response) => 
       accessToken: newAccessToken,
     })
   )
+})
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  res.json(new ApiResponse(true, "User fetched", req.user))
+})
+export const updateProfile = asyncHandler(async (req, res) => {
+  const updatedUser = await userService.updateUserService(
+    req.user._id,
+    req.body
+  )
+
+  res.json(new ApiResponse(true, "Profile updated", updatedUser))
+})
+export const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body
+
+  await userService.changePasswordService(
+    req.user._id,
+    oldPassword,
+    newPassword
+  )
+
+  res.json(new ApiResponse(true, "Password changed", null))
+})
+export const deleteAccount = asyncHandler(async (req, res) => {
+  await userService.softDeleteUserService(req.user._id)
+
+  res.json(new ApiResponse(true, "Account deleted", null))
+})
+export const updateAvatar = asyncHandler(async (req, res) => {
+  if (!req.file) throw new ApiError(400, "Avatar required")
+
+  const uploaded = await uploadOnCloudinary(req.file.path)
+
+  const user = await userService.updateUserService(req.user._id, {
+    avatar: uploaded.secure_url,
+    avatarPublicId: uploaded.public_id,
+  })
+
+  res.json(new ApiResponse(true, "Avatar updated", user))
+})
+export const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await userService.getAllUsersService()
+
+  res.json(new ApiResponse(true, "Users fetched", users))
+})
+export const toggleBlockUser = asyncHandler(async (req, res) => {
+  const user = await userService.toggleBlockUserService(
+    req.params.userId
+  )
+
+  res.json(new ApiResponse(true, "User status updated", user))
 })
