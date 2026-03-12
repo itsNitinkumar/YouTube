@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import { Comment } from "./comment.model";
 import { Video } from "../video/video.model";
 import { ApiError } from "../../utils/ApiError";
-import { throwDeprecation } from "node:process";
-import { fa } from "zod/v4/locales";
+
 export const  addCommentService = async (
     videoId:string,
     userId: string,
@@ -55,46 +54,56 @@ export const getVideoCommentsService = async(
  if(cursor){
     filter.createdAt ={$lt: new Date(cursor)}
  }
- const comments =await Comment.aggregate([
-    {$match: filter},
-    {$sort: {createdAt: -1}},
-    {$limit: limit},
-    {
-        $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "user"
-        }
-    },
-    {
-        $addFields: {
-            user: {$first: "$user"}
-        }
-    },
-    {
-        $lookup: {
-            from : "comments",
-            localField: "_id",
-            foreignField: "parentCommentId",
-            as: "replies"
-        }
-    },
-    {
-        $project: {
-            content: 1,
-            createdAt: 1,
-            likesCount: 1,
-            repliesCount: 1,
-            "user.name":1,
-            "user.avatar": 1
-        }
+const comments = await Comment.aggregate([
+  { $match: filter },
+  { $sort: { createdAt: -1 } },
+  { $limit: limit },
+
+  {
+    $lookup: {
+      from: "users",
+      localField: "userId",
+      foreignField: "_id",
+      as: "user"
     }
- ])
- const nextCursor = 
- comments.length>0? comments[comments.length -1].createdAt: null
- 
- return {comments,nextCursor}
+  },
+
+  {
+    $addFields: {
+      user: { $first: "$user" }
+    }
+  },
+
+  {
+    $lookup: {
+      from: "comments",
+      localField: "_id",
+      foreignField: "parentCommentId",
+      as: "replies"
+    }
+  },
+
+  {
+    $addFields: {
+      repliesCount: { $size: "$replies" }
+    }
+  },
+
+  {
+    $project: {
+      content: 1,
+      createdAt: 1,
+      likesCount: 1,
+      repliesCount: 1,
+      "user.name": 1,
+      "user.avatar": 1
+    }
+  }
+])
+const nextCursor =
+comments.length > 0 ? comments[comments.length - 1].createdAt : null
+
+return { comments, nextCursor }
 
 }
 export const updateCommentService = async (
