@@ -4,7 +4,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import healthRouter from './routes/health.route';
 import { errorMiddleware } from './middlewares/error.middleware';
-
+import userRoutes from './modules/user/user.route';
+import commentRoutes from './modules/comment/comment.route';
+import likeRoutes  from './modules/like/like.route';
+import watchHistoryRoutes from './modules/watchHistory.route';
 const app = express();
 
 app.use(express.json());
@@ -13,6 +16,10 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 app.use("/api/v1/health", healthRouter);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/comments", commentRoutes);
+app.use("/api/v1/likes", likeRoutes);
+app.use("/api/v1/watch-history", watchHistoryRoutes);
 
 app.use(errorMiddleware);
 

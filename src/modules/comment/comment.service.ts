@@ -26,7 +26,7 @@ export const  addCommentService = async (
     await Video.findByIdAndUpdate(
         videoId,
         {
-            $inc: {commentsCount: 1}
+            $inc: {commentsCount: 1, engagementScore: 3}
         },
         {session}
     )
@@ -122,17 +122,31 @@ export const updateCommentService = async (
   return comment
 }
 
-export const deleteCommentService =async(
-    commentId:string,
-    userId:string
-)=>{
-    const comment =await Comment.findOneAndUpdate(
-        {_id: commentId,userId},
-        {
-            isDeleted:true
-        },
-        {new: true}
-    )
-    if(!comment) throw new ApiError(404,"Comment not found")
-        return comment
-}
+export const deleteCommentService = async (
+  commentId: string,
+  userId: string
+) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    // Find the comment to get videoId
+    const comment = await Comment.findOne({ _id: commentId, userId });
+    if (!comment) throw new ApiError(404, "Comment not found");
+    // Mark as deleted
+    comment.isDeleted = true;
+    await comment.save({ session });
+    // Decrement counts only if top-level comment
+    await Video.findByIdAndUpdate(
+      comment.videoId,
+      { $inc: { commentsCount: -1, engagementScore: -3 } },
+      { session }
+    );
+    await session.commitTransaction();
+    return comment;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};

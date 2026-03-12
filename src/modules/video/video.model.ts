@@ -61,8 +61,14 @@ const videoSchema = new Schema<IVideo>(
       default: "published"
     },
 
-    aiSummary: String,
-    engagementScore: Number,
+   aiSummary: {
+     type: String
+   },
+   engagementScore: {
+     type: Number,
+     default: 0,
+     index: true
+   },
 
     isDeleted: { type: Boolean, default: false }
   },

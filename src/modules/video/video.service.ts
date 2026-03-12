@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import { Video } from "./video.model"
 import { ApiError } from "../../utils/ApiError"
+import { WatchHistory } from "../watchHistory.model"
 
 export const createVideoService = async (data: any) => {
   return await Video.create(data)
@@ -106,4 +107,42 @@ export const togglePublishStatusService = async (
   await video.save()
 
   return video
+}
+export const getTrendingVideosService = async()=>{
+
+  return Video.find({
+    isDeleted: false,
+    visibility: "public"
+  })
+  .sort({ engagementScore: -1 })
+  .limit(20)
+  // const video = Video.aggregate([
+  //   {$addFields: {
+  //     score:{
+  //       $add: [
+  //         {$multiply: ["$viewsCounts", 0.6]},
+  //         {$multiply: ["$likesCounts", 0.4]},
+  //         {$multiply: ["$commentsCounts", 0.2]}
+  //       ]
+  //     }
+  //   }},
+  //   {$sort: {score : -1}},
+  //   {$limit: 20}
+  //   ])
+
+  //   return video;
+}
+
+export const getRecommendedVideosService = async (userId: string) => {
+
+  const history = await WatchHistory.find({ userId })
+    .populate("videoId")
+
+  const watchedTags = history
+    .flatMap((h: any) => h.videoId.tags)
+
+  return Video.find({
+    tags: { $in: watchedTags }
+  })
+    .limit(20)
 }
