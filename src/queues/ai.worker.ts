@@ -7,10 +7,10 @@ const worker = new Worker("ai-processing", async job => {
 
  const summary =  await aiService.generateVideoSummary(description);
  const tags = await aiService.generateVideoTags(title, description);
- await Video.findByIdAndUpdate(videoId,{
-    aiSummary: summary,
-    tags: tags
- })
+ await Video.findByIdAndUpdate(videoId, {
+      aiSummary: summary ?? "",
+      tags: tags ?? []
+    })
 }, {
   connection: redisConnection
 });

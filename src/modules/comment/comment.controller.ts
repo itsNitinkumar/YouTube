@@ -20,9 +20,12 @@ export const getVideoComments = asyncHandler(
       cursor as string,
       Number(limit) || 10
     )
+    const warning = result.comments.some(comment => comment.isFlaggedByAI)
+      ? "Some comments may violate community guidelines."
+      : null
 
     res.status(200).json(
-      new ApiResponse(true, "Comments fetched successfully", result)
+      new ApiResponse(true, "Comments fetched successfully", {result, warning})
     )
   }
 )
@@ -65,9 +68,12 @@ export const updateComment = asyncHandler(
       req.user!._id,
       content
     )
+    const warning = comment.isFlaggedByAI
+      ? "Your edited comment may violate community guidelines."
+      : null
 
     res.status(200).json(
-      new ApiResponse(true, "Comment updated successfully", comment)
+      new ApiResponse(true, "Comment updated successfully", { comment, warning })
     )
   }
 )
@@ -91,3 +97,4 @@ export const deleteComment = asyncHandler(
     )
   }
 )
+
