@@ -10,6 +10,9 @@ import commentRoutes from './modules/comment/comment.route';
 import likeRoutes  from './modules/like/like.route';
 import watchHistoryRoutes from './modules/watchHistory.route';
 import aiRoutes from './modules/ai/ai.route';
+import notificationRoutes from "./modules/notification/notification.route"
+
+
 const app = express();
 
 app.use(express.json());
@@ -23,7 +26,8 @@ app.use("/api/v1/comments", commentRoutes);
 app.use("/api/v1/likes", likeRoutes);
 app.use("/api/v1/watch-history", watchHistoryRoutes);
 app.use("/api/v1/ai", aiRoutes);
+app.use("/api/v1/notifications", notificationRoutes)
 
-app.use(errorMiddleware);
+app.use(errorMiddleware); // position matters where should we write it 
 
 export default app;

@@ -3,22 +3,29 @@ import { Video } from "./video.model"
 import { ApiError } from "../../utils/ApiError"
 import { WatchHistory } from "../watchHistory.model"
 import { aiQueue } from "../../queues/ai.queue";
-
+import * as notificationService from "../notification/notification.service"
 export const createVideoService = async (data: any) => {
 
   const video = await Video.create(data)
 
 try {
-
-    await aiQueue.add("generate-video-ai", {
+    await Promise.all([
+     aiQueue.add("generate-video-ai", {
       videoId: video._id,
       title: video.title,
       description: video.description
-    })
+    }),
+
+     notificationService.notifySubscribers(
+    video.creatorId.toString(),
+    video._id.toString(),
+    video.title
+  )
+])
 
   } catch (error) {
 
-    console.error("Queue job failed:", error)
+    console.error("Post-processing failed:", error)
 
   }
 

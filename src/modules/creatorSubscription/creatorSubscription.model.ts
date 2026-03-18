@@ -1,15 +1,24 @@
-import mongoose, { Schema } from "mongoose"
+import e from "express"
+import mongoose, { Schema,Document } from "mongoose"
+
+
+export interface ICreatorSubscription extends Document {
+  subscriberId: mongoose.Types.ObjectId
+  creatorId: mongoose.Types.ObjectId
+}
 
 const schema = new Schema(
   {
     subscriberId: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      index: true
     },
 
     creatorId: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      index: true
     }
   },
   { timestamps: true }
@@ -21,4 +30,4 @@ schema.index(
 )
 
 export const CreatorSubscription =
-  mongoose.model("CreatorSubscription", schema)
+  mongoose.model<ICreatorSubscription>("CreatorSubscription", schema)
