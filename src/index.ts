@@ -1,20 +1,20 @@
 import app from './app';
+import http from "http";
+import {initSocket} from "./socket";
 import { config } from './config/env';
 import { connectDB } from './config/db';
 import { logger } from './utils/logger';
 
 const startServer = async () => {
   try {
-    // Connect to MongoDB
+  
     await connectDB();
-
-    // Start Express server
-    const server = app.listen(config.PORT, () => {
-      logger.info(`Server is running on port ${config.PORT}`);
-      logger.info(`Environment: ${config.NODE_ENV}`);
-    });
-
-    // Graceful shutdown
+    const server = http.createServer(app);
+    initSocket(server);
+   server.listen(config.PORT, () => {
+      logger.info(`Server is running on port ${config.PORT}`)
+      logger.info(`Environment: ${config.NODE_ENV}`)
+    })
     process.on('SIGTERM', () => {
       logger.info('SIGTERM signal received: closing HTTP server');
       server.close(() => {
