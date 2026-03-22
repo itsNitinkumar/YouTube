@@ -1,0 +1,12 @@
+import { v2 as cloudinary } from "cloudinary"
+import { config } from "./env"
+
+if (config.CLOUD_NAME && config.CLOUD_API_KEY && config.CLOUD_API_SECRET) {
+  cloudinary.config({
+    cloud_name: config.CLOUD_NAME,
+    api_key: config.CLOUD_API_KEY,
+    api_secret: config.CLOUD_API_SECRET
+  })
+}
+
+export default cloudinary
