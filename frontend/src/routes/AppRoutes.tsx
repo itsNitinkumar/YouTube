@@ -3,6 +3,7 @@ import { useAppSelector } from "../redux/hooks";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import type { JSX } from "react";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
