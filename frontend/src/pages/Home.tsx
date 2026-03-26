@@ -1,41 +1,57 @@
+import { useEffect } from "react"
+import { useNavigate } from "react-router-dom"   // ✅ ADD
 import { useAppDispatch, useAppSelector } from "../redux/hooks"
-import { logoutUser } from "../features/auth/authSlice"
-import { useNavigate } from "react-router-dom"
+import { fetchVideos } from "../features/video/videoSlice"
 
 export default function Home() {
 
   const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const navigate = useNavigate()   // ✅ ADD
 
-  const { user, isAuthenticated } = useAppSelector(
-    (state) => state.auth
+  const { videos, loading } = useAppSelector(
+    (state) => state.video
   )
 
-  const handleLogout = async () => {
-    await dispatch(logoutUser())
-    navigate("/login")
-  }
+  useEffect(() => {
+    dispatch(fetchVideos())
+  }, [dispatch])
+
+  if (loading) return <div>Loading videos...</div>
 
   return (
     <div className="p-6">
 
-      <h1 className="text-2xl font-bold mb-4">
-        Home Page
+      <h1 className="text-xl font-bold mb-4">
+        Video Feed
       </h1>
 
-      {isAuthenticated && (
-        <div className="mb-4">
-          <p>Welcome, {user?.name}</p>
-          <p>Email: {user?.email}</p>
-        </div>
-      )}
+      <div className="grid grid-cols-3 gap-4">
 
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </button>
+        {videos.map((video) => (
+          <div
+            key={video._id}
+            className="border p-2 cursor-pointer"
+            onClick={() => navigate(`/video/${video._id}`)}  // ✅ ADD
+          >
+
+            <img
+              src={video.thumbnailUrl}
+              alt={video.title}
+              className="w-full h-40 object-cover"
+            />
+
+            <h2 className="font-semibold">
+              {video.title}
+            </h2>
+
+            <p className="text-sm text-gray-500">
+              {video.creatorId?.name}
+            </p>
+
+          </div>
+        ))}
+
+      </div>
 
     </div>
   )

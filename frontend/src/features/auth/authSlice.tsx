@@ -51,9 +51,9 @@ export const login = createAsyncThunk<
   User,
   LoginPayload,
   { rejectValue: string }
->("auth/login", async (credentials, thunkAPI) => {
+>("users/login", async (credentials, thunkAPI) => {
   try {
-    const res = await api.post<AuthResponse>("/auth/login", credentials);
+    const res = await api.post<AuthResponse>("/users/login", credentials);
     return res.data.data.user;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -69,9 +69,9 @@ export const register = createAsyncThunk<
   User,
   RegisterPayload,
   { rejectValue: string }
->("auth/register", async (credentials, thunkAPI) => {
+>("users/register", async (credentials, thunkAPI) => {
   try {
-    const res = await api.post<AuthResponse>("/auth/register", credentials);
+    const res = await api.post<AuthResponse>("/users/register", credentials);
     return res.data.data.user;
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
@@ -87,9 +87,9 @@ export const logoutUser = createAsyncThunk<
   void,
   void,
   { rejectValue: string }
->("auth/logout", async (_, thunkAPI) => {
+>("users/logout", async (_, thunkAPI) => {
   try {
-    await api.post("/auth/logout"); // backend clears cookie
+    await api.post("/users/logout"); // backend clears cookie
   } catch (error) {
     const err = error as AxiosError<{ message: string }>;
     return thunkAPI.rejectWithValue(
@@ -104,9 +104,9 @@ export const checkAuth = createAsyncThunk<
   User,
   void,
   { rejectValue: string }
->("auth/checkAuth", async (_, thunkAPI) => {
+>("users/checkAuth", async (_, thunkAPI) => {
   try {
-    const res = await api.get<AuthResponse>("/auth/me");
+    const res = await api.get<AuthResponse>("/users/me");
     return res.data.data.user;
   } catch (error) {
     return thunkAPI.rejectWithValue("Not authenticated");

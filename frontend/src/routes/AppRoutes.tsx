@@ -3,6 +3,7 @@ import { useAppSelector } from "../redux/hooks";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import Video from "../pages/Video"
 import type { JSX } from "react";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -24,6 +25,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/video/:videoId"
+        element={
+          <ProtectedRoute>
+            <Video />
           </ProtectedRoute>
         }
       />
