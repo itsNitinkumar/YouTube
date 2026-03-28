@@ -1,0 +1,106 @@
+import { asyncHandler } from "../../utils/asyncHandler"
+import { ApiResponse } from "../../utils/ApiResponse"
+import * as commentService from "./comment.service"
+import { Request, Response } from "express"
+import mongoose from "mongoose"
+import { ApiError } from "../../utils/ApiError"
+
+export const getVideoComments = asyncHandler(
+  async (req: Request, res: Response) => {
+    const videoId = Array.isArray(req.params.videoId) 
+      ? req.params.videoId[0] 
+      : req.params.videoId
+    const { cursor, limit } = req.query
+
+    if (!mongoose.isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid video id")
+    }
+
+  const result = await commentService.getVideoCommentsService(
+    videoId,
+    cursor as string,
+    Number(limit) || 10
+  )
+  const { comments, nextCursor } = result
+
+  const warning = comments.some(comment => comment.isFlaggedByAI)
+    ? "Some comments may violate community guidelines."
+    : null
+
+  res.status(200).json(
+    new ApiResponse(true, "Comments fetched successfully", { comments, nextCursor, warning })
+  )
+  }
+)
+
+export const addComment = asyncHandler(
+  async (req: Request, res: Response) => {
+    const videoId = Array.isArray(req.params.videoId) 
+      ? req.params.videoId[0] 
+      : req.params.videoId
+    const { content, parentCommentId } = req.body
+
+    if (!mongoose.isValidObjectId(videoId)) {
+      throw new ApiError(400, "Invalid video id")
+    }
+
+    const comment = await commentService.addCommentService(
+      videoId,
+      req.user!._id.toString(),
+      content,
+      parentCommentId
+    )
+
+    res.status(201).json(
+      new ApiResponse(true, "Comment added successfully", comment)
+    )
+  }
+)
+
+export const updateComment = asyncHandler(
+  async (req: Request, res: Response) => {
+    const commentId = Array.isArray(req.params.commentId) 
+      ? req.params.commentId[0] 
+      : req.params.commentId
+    const { content } = req.body
+
+    if (!mongoose.isValidObjectId(commentId)) {
+      throw new ApiError(400, "Invalid comment id")
+    }
+
+    const comment = await commentService.updateCommentService(
+      commentId,
+      req.user!._id.toString(),
+      content
+    )
+    const warning = comment.isFlaggedByAI
+      ? "Your edited comment may violate community guidelines."
+      : null
+
+    res.status(200).json(
+      new ApiResponse(true, "Comment updated successfully", { comment, warning })
+    )
+  }
+)
+
+export const deleteComment = asyncHandler(
+  async (req: Request, res: Response) => {
+    const commentId = Array.isArray(req.params.commentId) 
+      ? req.params.commentId[0] 
+      : req.params.commentId
+
+    if (!mongoose.isValidObjectId(commentId)) {
+      throw new ApiError(400, "Invalid comment id")
+    }
+
+    await commentService.deleteCommentService(
+      commentId,
+      req.user!._id.toString()
+    )
+
+    res.status(200).json(
+      new ApiResponse(true, "Comment deleted successfully", {})
+    )
+  }
+)
+
