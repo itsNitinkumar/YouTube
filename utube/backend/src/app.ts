@@ -10,7 +10,7 @@ import userRoutes from './modules/user/user.route';
 import videoRoutes from './modules/video/video.route';
 import commentRoutes from './modules/comment/comment.route';
 import likeRoutes from './modules/like/like.route';
-import watchHistoryRoutes from './modules/watchHistory.route';
+import watchHistoryRoutes from './modules/watchHistory/watchHistory.route';
 import aiRoutes from './modules/ai/ai.route';
 import notificationRoutes from "./modules/notification/notification.route";
 import planRoutes from './modules/plan/plan.route';

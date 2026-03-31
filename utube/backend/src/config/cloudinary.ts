@@ -5,7 +5,9 @@ if (config.CLOUD_NAME && config.CLOUD_API_KEY && config.CLOUD_API_SECRET) {
   cloudinary.config({
     cloud_name: config.CLOUD_NAME,
     api_key: config.CLOUD_API_KEY,
-    api_secret: config.CLOUD_API_SECRET
+    api_secret: config.CLOUD_API_SECRET,
+    secure: true,
+    upload_timeout: 300000 // 5 minutes timeout
   })
 }
 

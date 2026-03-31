@@ -1,0 +1,14 @@
+# Documentation files (generated during development)
+*.md
+!README.md
+
+# Test files
+test-*.js
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

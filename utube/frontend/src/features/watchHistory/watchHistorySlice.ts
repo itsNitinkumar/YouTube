@@ -1,35 +1,43 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import {
-  addToHistoryAPI,
-  getHistoryAPI,
-} from "./watchHistoryAPI"
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { addToHistoryAPI, getHistoryAPI } from "./watchHistoryAPI";
+import type { WatchHistory } from "../../types";
 
 interface HistoryState {
-  history: any[]
-  loading: boolean
+  history: WatchHistory[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: HistoryState = {
   history: [],
   loading: false,
-}
+  error: null,
+};
 
 // 🔥 ADD HISTORY
 export const addToHistory = createAsyncThunk(
   "history/add",
-  async (videoId: string) => {
-    await addToHistoryAPI(videoId)
-    return videoId
+  async (videoId: string, thunkAPI) => {
+    try {
+      await addToHistoryAPI(videoId);
+      return videoId;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to add to history");
+    }
   }
-)
+);
 
 // 🔥 GET HISTORY
 export const fetchHistory = createAsyncThunk(
   "history/get",
-  async () => {
-    return await getHistoryAPI()
+  async (_, thunkAPI) => {
+    try {
+      return await getHistoryAPI();
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to fetch history");
+    }
   }
-)
+);
 
 const historySlice = createSlice({
   name: "history",
@@ -37,16 +45,19 @@ const historySlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-
       .addCase(fetchHistory.pending, (state) => {
-        state.loading = true
+        state.loading = true;
+        state.error = null;
       })
-
       .addCase(fetchHistory.fulfilled, (state, action) => {
-        state.loading = false
-        state.history = action.payload
+        state.loading = false;
+        state.history = action.payload;
       })
+      .addCase(fetchHistory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || "Failed to load history";
+      });
   },
-})
+});
 
-export default historySlice.reducer
+export default historySlice.reducer;

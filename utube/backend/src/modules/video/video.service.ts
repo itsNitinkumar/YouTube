@@ -1,36 +1,46 @@
-import mongoose from "mongoose"
-import { Video } from "./video.model"
-import { ApiError } from "../../utils/ApiError"
-import { WatchHistory } from "../watchHistory.model"
+import mongoose from "mongoose";
+import { Video } from "./video.model";
+import { ApiError } from "../../utils/ApiError";
+import { WatchHistory } from "../watchHistory/watchHistory.model";
 import { aiQueue } from "../../queues/ai.queue";
-import * as notificationService from "../notification/notification.service"
+import * as notificationService from "../notification/notification.service";
+import { logger } from "../../utils/logger";
+
 export const createVideoService = async (data: any) => {
+  const video = await Video.create(data);
 
-  const video = await Video.create(data)
+  // Run post-processing tasks asynchronously (don't block video creation)
+  try {
+    await Promise.allSettled([
+      // Add AI processing job to queue
+      aiQueue
+        .add("generate-video-ai", {
+          videoId: video._id,
+          title: video.title,
+          description: video.description
+        })
+        .catch((err) => {
+          logger.error("Failed to add AI job to queue:", err);
+        }),
 
-try {
-    await Promise.all([
-     aiQueue.add("generate-video-ai", {
-      videoId: video._id,
-      title: video.title,
-      description: video.description
-    }),
-
-     notificationService.notifySubscribers(
-    video.creatorId.toString(),
-    video._id.toString(),
-    video.title
-  )
-])
-
+      // Notify subscribers
+      notificationService
+        .notifySubscribers(
+          video.creatorId.toString(),
+          video._id.toString(),
+          video.title
+        )
+        .catch((err) => {
+          logger.error("Failed to notify subscribers:", err);
+        })
+    ]);
   } catch (error) {
-
-    console.error("Post-processing failed:", error)
-
+    logger.error("Post-processing failed:", error);
+    // Don't throw - video is already created
   }
 
-  return video
-}
+  return video;
+};
 
 
 

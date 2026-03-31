@@ -1,8 +1,7 @@
 import mongoose from "mongoose"
-import { Video } from "./video/video.model"
+import { Video } from "../video/video.model"
 import { WatchHistory, IWatchHistory } from "./watchHistory.model"
-import { ApiError } from "../utils/ApiError"
-import { User } from "./user/user.model"
+import { ApiError } from "../../utils/ApiError"
 
 export interface TrackWatchParams {
   userId: string

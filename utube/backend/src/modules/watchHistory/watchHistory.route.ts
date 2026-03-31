@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { verifyJWT } from "../../middlewares/auth.middleware";
 import * as watchHistoryRoute from "./watchHistory.controller"
 const router = Router();
 router.post("/track", verifyJWT, watchHistoryRoute.trackWatch);

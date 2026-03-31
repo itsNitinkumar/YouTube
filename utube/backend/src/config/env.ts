@@ -7,9 +7,7 @@ const requiredEnvVars = [
   "NODE_ENV",
   "JWT_SECRET",
   "ACCESS_TOKEN_SECRET",
-  "REFRESH_TOKEN_SECRET",
-  "HF_API_KEY",
-  "HF_MODEL"
+  "REFRESH_TOKEN_SECRET"
 ]
 
 requiredEnvVars.forEach((key) => {
@@ -27,6 +25,8 @@ export const config = {
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET as string,
   HF_API_KEY: process.env.HF_API_KEY as string,
   HF_MODEL: process.env.HF_MODEL as string,
+  GROQ_API_KEY: process.env.GROQ_API_KEY as string,
+  ASSEMBLYAI_API_KEY: process.env.ASSEMBLYAI_API_KEY as string,
   CLOUD_NAME: process.env.CLOUD_NAME as string,
   CLOUD_API_KEY: process.env.CLOUD_API_KEY as string,
   CLOUD_API_SECRET: process.env.CLOUD_API_SECRET as string,

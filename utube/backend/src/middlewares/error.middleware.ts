@@ -14,7 +14,7 @@ export const errorMiddleware = (
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
-    const zodErrors = err.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+    const zodErrors = err.issues.map((e) => `${e.path.join('.')}: ${e.message}`)
     error = new ApiError(400, "Validation failed", zodErrors, true)
   }
   // Handle other non-ApiError errors
