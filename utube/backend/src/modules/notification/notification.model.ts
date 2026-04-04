@@ -19,6 +19,17 @@ const notificationSchema = new Schema(
 
     type: {
       type: String,
+      enum: [
+        "NEW_VIDEO",
+        "COMMENT",
+        "LIKE",
+        "SUBSCRIBED",
+        "UNSUBSCRIBED",
+        "PLAN_PURCHASED",
+        "PLAN_EXPIRED",
+        "PAYMENT_SUCCESS",
+        "PAYMENT_FAILED"
+      ],
       required: true
     },
 

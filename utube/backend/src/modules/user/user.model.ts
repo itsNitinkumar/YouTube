@@ -75,7 +75,7 @@ userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     { userId: this._id, role: this.role },
     config.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "1d" }
   )
 }
 

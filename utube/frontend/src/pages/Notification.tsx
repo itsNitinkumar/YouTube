@@ -1,13 +1,19 @@
-import { useAppSelector } from "../redux/hooks"
+import { useEffect } from "react"
+import { useAppSelector, useAppDispatch } from "../redux/hooks"
+import { fetchNotifications, markAsRead, markAllRead } from "../features/notification/notificationSlice"
 import { Card, CardContent } from "../components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
 import { Badge } from "../components/ui/badge"
 import { Separator } from "../components/ui/separator"
 import { Bell, Video, ThumbsUp, MessageCircle, UserPlus, Settings } from "lucide-react"
 import { Button } from "../components/ui/button"
 
 export default function Notifications() {
-  const { notifications } = useAppSelector((state) => state.notification)
+  const dispatch = useAppDispatch()
+  const { notifications, loading } = useAppSelector((state) => state.notification)
+
+  useEffect(() => {
+    dispatch(fetchNotifications())
+  }, [dispatch])
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -38,6 +44,16 @@ export default function Notifications() {
     return notifDate.toLocaleDateString()
   }
 
+  const handleNotificationClick = (notificationId: string, isRead: boolean) => {
+    if (!isRead) {
+      dispatch(markAsRead(notificationId))
+    }
+  }
+
+  const handleMarkAllAsRead = () => {
+    dispatch(markAllRead())
+  }
+
   const importantNotifications = notifications.filter((n) => !n.isRead)
   const otherNotifications = notifications.filter((n) => n.isRead)
 
@@ -52,12 +68,25 @@ export default function Notifications() {
               Stay updated with your latest activity
             </p>
           </div>
-          <Button variant="outline" size="icon">
-            <Settings className="h-5 w-5" />
-          </Button>
+          <div className="flex gap-2">
+            {importantNotifications.length > 0 && (
+              <Button variant="outline" onClick={handleMarkAllAsRead}>
+                Mark all as read
+              </Button>
+            )}
+            <Button variant="outline" size="icon">
+              <Settings className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
 
-        {notifications.length === 0 ? (
+        {loading ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-16">
+              <p className="text-muted-foreground">Loading notifications...</p>
+            </CardContent>
+          </Card>
+        ) : notifications.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16">
               <Bell className="h-16 w-16 text-muted-foreground mb-4" />
@@ -81,6 +110,7 @@ export default function Notifications() {
                     <Card
                       key={n._id}
                       className="hover:bg-accent transition-colors cursor-pointer border-l-4 border-l-primary"
+                      onClick={() => handleNotificationClick(n._id, n.isRead)}
                     >
                       <CardContent className="p-4">
                         <div className="flex gap-4">
@@ -116,6 +146,7 @@ export default function Notifications() {
                     <Card
                       key={n._id}
                       className="hover:bg-accent transition-colors cursor-pointer"
+                      onClick={() => handleNotificationClick(n._id, n.isRead)}
                     >
                       <CardContent className="p-4">
                         <div className="flex gap-4">

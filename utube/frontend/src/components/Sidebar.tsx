@@ -1,8 +1,12 @@
+import { useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { Home, History, Bell, LayoutDashboard, Video, Upload } from "lucide-react"
 import { cn } from "../lib/utils"
 import { ScrollArea } from "./ui/scroll-area"
 import { Button } from "./ui/button"
+import { Badge } from "./ui/badge"
+import { useAppDispatch, useAppSelector } from "../redux/hooks"
+import { fetchUnreadCount } from "../features/notification/notificationSlice"
 
 const navigation = [
   { name: "Home", href: "/", icon: Home },
@@ -13,6 +17,17 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation()
+  const dispatch = useAppDispatch()
+  const { unreadCount } = useAppSelector((state) => state.notification)
+
+  useEffect(() => {
+    dispatch(fetchUnreadCount())
+    // Poll for unread count every 30 seconds
+    const interval = setInterval(() => {
+      dispatch(fetchUnreadCount())
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [dispatch])
 
   return (
     <div className="fixed left-0 top-0 h-screen w-64 border-r bg-background">
@@ -35,12 +50,13 @@ export default function Sidebar() {
           <nav className="space-y-1">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href
+              const isNotifications = item.name === "Notifications"
               return (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors relative",
                     isActive
                       ? "bg-secondary text-secondary-foreground"
                       : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
@@ -48,6 +64,14 @@ export default function Sidebar() {
                 >
                   <item.icon className="h-5 w-5" />
                   {item.name}
+                  {isNotifications && unreadCount > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="ml-auto h-5 min-w-5 px-1 text-xs"
+                    >
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </Badge>
+                  )}
                 </Link>
               )
             })}

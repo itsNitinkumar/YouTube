@@ -2,6 +2,7 @@ import { Notification } from "./notification.model";
 import { CreatorSubscription } from "../creatorSubscription/creatorSubscription.model";
 import { getIO, getUserSocket } from "../../socket";
 import { logger } from "../../utils/logger";
+import mongoose from "mongoose";
 
 export const notifySubscribers = async (
   creatorId: string,
@@ -9,7 +10,11 @@ export const notifySubscribers = async (
   title: string
 ) => {
   try {
-    const subscribers = await CreatorSubscription.find({ creatorId });
+    // Convert string to ObjectId for proper MongoDB query
+    const creatorObjectId = new mongoose.Types.ObjectId(creatorId);
+    const subscribers = await CreatorSubscription.find({ creatorId: creatorObjectId });
+
+    logger.info(`Found ${subscribers.length} subscribers for creator ${creatorId}`);
 
     if (subscribers.length === 0) {
       logger.info(`No subscribers to notify for creator ${creatorId}`);
@@ -26,7 +31,13 @@ export const notifySubscribers = async (
     });
 
     // Insert notifications into database
-    await Notification.insertMany(notifications, { ordered: false });
+    try {
+      const result = await Notification.insertMany(notifications, { ordered: false });
+      logger.info(`Created ${result.length} notifications for video: ${title}`);
+    } catch (insertError: any) {
+      logger.error("Failed to insert notifications:", insertError);
+      throw insertError;
+    }
 
     // Send real-time notifications via Socket.IO
     try {

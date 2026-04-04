@@ -38,7 +38,8 @@ export const fetchUnreadCount = createAsyncThunk(
   "notification/unreadCount",
   async (_, thunkAPI) => {
     try {
-      return await getUnreadCountAPI();
+      const response = await getUnreadCountAPI();
+      return response.count; // Extract count from response object
     } catch (error) {
       return thunkAPI.rejectWithValue("Failed to fetch unread count");
     }
