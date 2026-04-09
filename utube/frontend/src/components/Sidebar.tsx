@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Home, History, Bell, LayoutDashboard, Video, Upload } from "lucide-react"
+import { Home, History, Bell, LayoutDashboard, Video, Upload, CreditCard } from "lucide-react"
 import { cn } from "../lib/utils"
 import { ScrollArea } from "./ui/scroll-area"
 import { Button } from "./ui/button"
@@ -12,6 +12,7 @@ const navigation = [
   { name: "Home", href: "/", icon: Home },
   { name: "History", href: "/history", icon: History },
   { name: "Notifications", href: "/notifications", icon: Bell },
+  { name: "Plans", href: "/plans", icon: CreditCard },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
 ]
 
@@ -65,8 +66,8 @@ export default function Sidebar() {
                   <item.icon className="h-5 w-5" />
                   {item.name}
                   {isNotifications && unreadCount > 0 && (
-                    <Badge 
-                      variant="destructive" 
+                    <Badge
+                      variant="destructive"
                       className="ml-auto h-5 min-w-5 px-1 text-xs"
                     >
                       {unreadCount > 99 ? '99+' : unreadCount}

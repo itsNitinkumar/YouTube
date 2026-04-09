@@ -1,13 +1,13 @@
 import {z} from "zod";
-import { upload } from "../../middlewares/upload.middleware";
+
 export const PlanSchema = z.object({
     name: z.string(),
-    price: z.number(),
+    price: z.number().positive(),
+    duration: z.number().positive().default(30), // days
     features: z.object({
-       uploadLimit: z.number(),
+       uploadLimit: z.number().positive(),
        analyticsAccess: z.boolean(),
        adFree: z.boolean(),
        aiTools: z.boolean()
-
     })
 })

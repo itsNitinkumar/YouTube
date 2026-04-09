@@ -1,11 +1,11 @@
 import { asyncHandler } from "../../utils/asyncHandler"
-import {Request,Response} from "express"
+import { Request, Response } from "express"
 import { ApiResponse } from "../../utils/ApiResponse"
 import { ApiError } from "../../utils/ApiError"
 import { User } from "./user.model"
 import { registerUser, loginUser } from "./user.service"
 import { registerSchema, loginSchema } from "./user.validation"
-import {config} from "../../config/env"
+import { config } from "../../config/env"
 import jwt from "jsonwebtoken"
 import { uploadOnCloudinary } from "../../utils/cloudinary"
 import * as userService from "./user.service"
@@ -129,7 +129,7 @@ export const updateAvatar = asyncHandler(async (req: Request, res: Response) => 
   if (!req.file) throw new ApiError(400, "Avatar required")
 
   const uploaded = await uploadOnCloudinary(req.file.path)
-  
+
   if (!uploaded) throw new ApiError(500, "Avatar upload failed")
 
   const user = await userService.updateUserService(req.user!._id.toString(), {
@@ -147,10 +147,10 @@ export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const toggleBlockUser = asyncHandler(async (req: Request, res: Response) => {
-  const userId = Array.isArray(req.params.userId) 
-    ? req.params.userId[0] 
+  const userId = Array.isArray(req.params.userId)
+    ? req.params.userId[0]
     : req.params.userId
-    
+
   const user = await userService.toggleBlockUserService(userId)
 
   res.json(new ApiResponse(true, "User status updated", user))

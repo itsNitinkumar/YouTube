@@ -4,14 +4,21 @@ export interface Plan {
   _id: string;
   name: string;
   price: number;
-  features: string[];
   duration: number; // in days
+  features: {
+    uploadLimit: number;
+    analyticsAccess: boolean;
+    adFree: boolean;
+    aiTools: boolean;
+  };
   createdAt: string;
 }
 
 // Get all plans
 export const getPlansAPI = async () => {
-  const res = await api.get("/plans");
+  const res = await api.get("/plans", {
+    withCredentials: true,
+  });
   return res.data.data;
 };
 

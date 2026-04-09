@@ -6,6 +6,7 @@ import Register from "../pages/Register";
 import Video from "../pages/Video";
 import History from "../pages/History";
 import Notification from "../pages/Notification";
+import Plan from "../pages/Plan";
 import UploadVideo from "../pages/UploadVideo";
 import Sidebar from "../components/Sidebar";
 import type { JSX } from "react";
@@ -87,6 +88,16 @@ export default function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <Notification />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/plans"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Plan />
             </Layout>
           </ProtectedRoute>
         }

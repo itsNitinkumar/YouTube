@@ -18,14 +18,16 @@ const initialState: PlanState = {
   subscribeSuccess: false,
 };
 
-// Get all plans
+// Fetch all plans
 export const fetchPlans = createAsyncThunk(
   "plan/fetchPlans",
   async (_, thunkAPI) => {
     try {
       return await getPlansAPI();
-    } catch (error) {
-      return thunkAPI.rejectWithValue("Failed to fetch plans");
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to fetch plans"
+      );
     }
   }
 );
@@ -36,8 +38,10 @@ export const subscribeToPlan = createAsyncThunk(
   async (planId: string, thunkAPI) => {
     try {
       return await subscribeToPlanAPI(planId);
-    } catch (error) {
-      return thunkAPI.rejectWithValue("Failed to subscribe to plan");
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Failed to subscribe to plan"
+      );
     }
   }
 );
@@ -48,6 +52,10 @@ const planSlice = createSlice({
   reducers: {
     clearSubscribeSuccess: (state) => {
       state.subscribeSuccess = false;
+      state.error = null;
+    },
+    clearError: (state) => {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -63,7 +71,7 @@ const planSlice = createSlice({
       })
       .addCase(fetchPlans.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = (action.payload as string) || "Failed to fetch plans";
       })
 
       // Subscribe to plan
@@ -79,10 +87,11 @@ const planSlice = createSlice({
       })
       .addCase(subscribeToPlan.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = (action.payload as string) || "Failed to subscribe to plan";
+        state.subscribeSuccess = false;
       });
   },
 });
 
-export const { clearSubscribeSuccess } = planSlice.actions;
+export const { clearSubscribeSuccess, clearError } = planSlice.actions;
 export default planSlice.reducer;

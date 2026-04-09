@@ -35,7 +35,7 @@ interface AuthResponse {
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  loading: false,
+  loading: true, // Start as true to wait for checkAuth
   error: null,
 };
 
@@ -101,10 +101,17 @@ export const checkAuth = createAsyncThunk<
   { rejectValue: string }
 >("users/checkAuth", async (_, thunkAPI) => {
   try {
+    console.log("Making request to /users/me...");
     const res = await api.get<AuthResponse>("/users/me");
+    console.log("Response from /users/me:", res.data);
     return res.data.data.user;
-  } catch (error) {
-    return thunkAPI.rejectWithValue("Not authenticated");
+  } catch (error: any) {
+    console.error("Error in checkAuth:", error);
+    console.error("Error response:", error.response?.data);
+    console.error("Error status:", error.response?.status);
+    return thunkAPI.rejectWithValue(
+      error.response?.data?.message || "Not authenticated"
+    );
   }
 });
 
